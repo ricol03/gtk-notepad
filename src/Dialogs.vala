@@ -34,7 +34,7 @@ public class Dialogs {
 					checkfile(main_window, textview, file2);
 
 			} catch (Error e) {
-				warning("ai ai");
+				warning("- %s".printf(e.message));
 			}
 		});
     }

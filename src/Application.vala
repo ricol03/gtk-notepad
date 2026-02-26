@@ -7,9 +7,9 @@ public class MyApp : Gtk.Application {
 	private Dialogs dialog = new Dialogs();
 	private Gtk.ApplicationWindow main_window;
 	private Gtk.TextView text_view;
-    private File? file;
-	private string path;
 	private string windowtitle = "Notepad";
+	private int charcount = 0;
+	private int wordcount = 0;
 
     public MyApp() {
 		Object (
@@ -51,6 +51,44 @@ public class MyApp : Gtk.Application {
 			margin_start = 6,
 			margin_end = 2
 		};
+		text_view.vexpand = true;
+
+		var charcountlabel = new Gtk.Label("Character count: %d".printf(charcount)) {
+			margin_start = 16
+		};
+
+		var wordcountlabel = new Gtk.Label("Word count: %d".printf(wordcount)) {
+			margin_start = 16
+		};
+
+		var buffer = text_view.get_buffer();
+		buffer.changed.connect(() => {
+			Gtk.TextIter start, end;
+			buffer.get_bounds (out start, out end);
+			string text = buffer.get_text(start, end, false);
+			charcount = text.char_count();
+
+			var lower = text.down();
+
+			wordcount = 0;
+			bool word = false;
+			for (int i = 0; i < lower.length;) {
+				unichar c;
+				lower.get_next_char(ref i, out c);
+
+				if (c.isspace())
+					word = false;
+				else {
+					if (!word) {
+						wordcount++;
+						word = true;
+					}
+				}
+			}
+
+			charcountlabel.set_text("Character count: %d".printf(charcount));
+			wordcountlabel.set_text("Word count: %d".printf(wordcount));
+		});
 
 		var menubox = new Menu();
 
@@ -77,15 +115,25 @@ public class MyApp : Gtk.Application {
 			margin_end = 2
 		};
 
+		var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 2);
+
 		var scrolled = new Gtk.ScrolledWindow();
 		scrolled.set_child(text_view);
 
-		var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 1);
+		var bottombar = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 3);
+		bottombar.set_size_request(-1, 40);
 
-		box.append(text_view);
+		var nothingbox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		nothingbox.set_size_request(240, -1);
+
+		bottombar.append(charcountlabel);
+		bottombar.append(wordcountlabel);
+
+		box.append(scrolled);
+		box.append(bottombar);
 
 		main_window = new Gtk.ApplicationWindow(this) {
-			child = scrolled,
+			child = box,
 			titlebar = headerbar,
 			default_height = 500,
 			default_width = 600,
