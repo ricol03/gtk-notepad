@@ -5,6 +5,7 @@ project('io.ricol03.gtk-notepad',
 executable(
     meson.project_name(),
     'src' / 'Application.vala',
+    'src' / 'Dialogs.vala',
     dependencies: [
         dependency('granite-7'),
         dependency('gtk4'),

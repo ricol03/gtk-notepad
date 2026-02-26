@@ -5,3 +5,5 @@ io.github.ricol03.gtk-test.yml
 .flatpak-builder
 _build/
 .buildconfig
+src/bin/
+src/share/
